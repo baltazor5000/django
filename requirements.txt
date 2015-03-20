@@ -1,5 +1,5 @@
 Django==1.7.6
-PyMySQL
+MySQLdb
 selenium
 rebar
 Pillow
