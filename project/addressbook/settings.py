@@ -87,7 +87,7 @@ USE_L10N = True
 USE_TZ = True
 
 TEMPLATE_DIRS = (
-    'addressbook/templates',
+    os.path.join(BASE_DIR,'addressbook/templates'),
 )
 
 
