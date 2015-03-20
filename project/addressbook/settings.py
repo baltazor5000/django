@@ -96,7 +96,7 @@ TEMPLATE_DIRS = (
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = '/home/baltazor/data/python/tutorial/project/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
