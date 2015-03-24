@@ -6,10 +6,14 @@ from django.views.generic import DeleteView
 from django.views.generic import DetailView
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.http import HttpResponse
 from contacts.models import Contact
+from contacts.forms import ContactForm
 import forms
+
 
 # Create your views here.
 class LoggedInMixin(object):
@@ -20,7 +24,7 @@ class LoggedInMixin(object):
 class ContactOwnerMixin(object):
     def get_object(self, queryset=None):
         if queryset is None:
-            queryset = self.get_queryset()
+            queryset=self.get_queryset()
         pk = self.kwargs.get(self.pk_url_kwargs, None)
         queryset = queryset.filter(
             pk=pk,
@@ -28,9 +32,10 @@ class ContactOwnerMixin(object):
         )
         try:
             obj = queryset.get()
-        except ObjectDoesNonExist:
+        except ObjectDoesNotExist:
             raise PermissionDenied
         return obj
+
 
 class ListContactView(LoggedInMixin, ContactOwnerMixin, ListView):
     model = Contact
@@ -39,12 +44,18 @@ class ListContactView(LoggedInMixin, ContactOwnerMixin, ListView):
     def get_queryset(self):
         return Contact.objects.filter(owner=self.request.user)
 
+
 class CreateContactView(CreateView):
-    fields = ['first_name', 'last_name', 'email', 'pic']
     model = Contact
     template_name = 'edit_contact.html'
-    form_class = forms.ContactForm
-    
+    form_class = ContactForm
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.owner = self.request.user
+        obj.save()
+        return super(CreateContactView, self).form_valid(form)
+
     def get_success_url(self):
         return reverse('contacts-list')
 
@@ -52,6 +63,7 @@ class CreateContactView(CreateView):
         context = super(CreateContactView, self).get_context_data(**kwargs)
         context['action'] = reverse('contacts-new')
         return context
+
 
 class UpdateContactView(UpdateView):
     fields = ['first_name', 'last_name', 'email', 'pic']
@@ -65,8 +77,9 @@ class UpdateContactView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(UpdateContactView, self).get_context_data(**kwargs)
         context['action'] = reverse('contacts-edit',
-                                    kwargs = {'pk': self.get_object().id})
+                                    kwargs={'pk': self.get_object().id})
         return context
+
 
 class DeleteContactView(DeleteView):
     model = Contact
@@ -75,9 +88,11 @@ class DeleteContactView(DeleteView):
     def get_success_url(self):
         return reverse('contacts-list')
 
+
 class ContactView(DetailView):
-    model = Contact        
+    model = Contact
     template_name = 'contact.html'
+
 
 class EditContactAddressView(UpdateView):
     model = Contact
@@ -88,5 +103,13 @@ class EditContactAddressView(UpdateView):
         return self.get_object().get_absolute_url()
 
 
+class SearchContactView(ListView):
+    model = Contact
+    template_name = 'contact_list.html'
 
+    def get_queryset(self):
+         if len(self.args) > 0:
+               return Contact.objects.filter(first_name__icontains=self.args[0])
+         else:
+               return Contact.objects.filter()
 
