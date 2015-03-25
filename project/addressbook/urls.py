@@ -6,12 +6,8 @@ from django.conf.urls.static import static
 import contacts.views
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'addressbook.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-    
-    url(r'^$', contacts.views.ListContactView.as_view(), 
-        name='contacts-list',),
+    url(r'^$', contacts.views.ListContactView.as_view(),
+        name='contacts-list'),
 
     url(r'^new$', contacts.views.CreateContactView.as_view(),
         name='contacts-new'),
@@ -28,7 +24,7 @@ urlpatterns = patterns('',
     url(r'^edit/(?P<pk>\d+)/addresses$', contacts.views.EditContactAddressView.as_view(),
         name='contacts-edit-addresses',),
 
-    url(r'^search/(\w+)/$', contacts.views.SearchContactView.as_view(),
+    url(r'^search/$', contacts.views.SearchContactView.as_view(),
         name='contacts-search'),
 
     url(r'^admin/', include(admin.site.urls)),

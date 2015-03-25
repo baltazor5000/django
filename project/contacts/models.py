@@ -2,6 +2,7 @@ from django.db import models
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+
 # Create your models here.
 class Contact(models.Model):
     first_name = models.CharField(
@@ -14,7 +15,7 @@ class Contact(models.Model):
     owner = models.ForeignKey(User)
     
     pic = models.ImageField("Image", upload_to="images/", default='')
-    upload_date=models.DateTimeField(auto_now_add=True)
+    upload_date = models.DateTimeField(auto_now_add=True)
    
     def __str__(self):
         return ' '.join([
@@ -23,7 +24,8 @@ class Contact(models.Model):
         ])
 
     def get_absolute_url(self):
-        return reverse('contacts-view', kwargs={'pk':self.id})
+        return reverse('contacts-view', kwargs={'pk': self.id})
+
 
 class Address(models.Model):
     contact = models.ForeignKey(Contact)
@@ -45,4 +47,3 @@ class Address(models.Model):
 
     class Meta:
         unique_together = ('contact', 'address_type')
-

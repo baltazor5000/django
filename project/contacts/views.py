@@ -9,10 +9,10 @@ from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.http import HttpResponse
 from contacts.models import Contact
 from contacts.forms import ContactForm
-import forms
+from contacts.forms import ContactAddressFormSet
+from django.http import HttpResponseNotFound
 
 
 # Create your views here.
@@ -25,10 +25,10 @@ class ContactOwnerMixin(object):
     def get_object(self, queryset=None):
         if queryset is None:
             queryset=self.get_queryset()
-        pk = self.kwargs.get(self.pk_url_kwargs, None)
-        queryset = queryset.filter(
+        pk=self.kwargs.get(self.pk_url_kwargs, None)
+        queryset=queryset.filter(
             pk=pk,
-            owner = self.request.user,
+            owner=self.request.user,
         )
         try:
             obj = queryset.get()
@@ -69,7 +69,7 @@ class UpdateContactView(UpdateView):
     fields = ['first_name', 'last_name', 'email', 'pic']
     model = Contact
     template_name = 'edit_contact.html'
-    form_class = forms.ContactForm
+    form_class = ContactForm
     
     def get_success_url(self):
         return reverse('contacts-list')
@@ -97,7 +97,7 @@ class ContactView(DetailView):
 class EditContactAddressView(UpdateView):
     model = Contact
     template_name = 'edit_addresses.html'
-    form_class = forms.ContactAddressFormSet
+    form_class = ContactAddressFormSet
     
     def get_success_url(self):
         return self.get_object().get_absolute_url()
@@ -108,8 +108,12 @@ class SearchContactView(ListView):
     template_name = 'contact_list.html'
 
     def get_queryset(self):
-         if len(self.args) > 0:
-               return Contact.objects.filter(first_name__icontains=self.args[0])
-         else:
-               return Contact.objects.filter()
-
+        name = self.request.GET.get('search')
+        if name is None:
+            return HttpResponseNotFound('Page not found')
+        else:
+            try:
+                obj = self.model.objects.filter(first_name__icontains=name)
+            except ObjectDoesNotExist:
+                obj = None
+            return obj
