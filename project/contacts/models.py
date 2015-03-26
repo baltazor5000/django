@@ -18,20 +18,24 @@ class Contact(models.Model):
     upload_date = models.DateTimeField(auto_now_add=True)
    
     def __str__(self):
-        return ' '.join([
-            self.first_name,
-            self.last_name,
-        ])
+        return '%s %s' % (self.first_name, self.last_name)
 
     def get_absolute_url(self):
         return reverse('contacts-view', kwargs={'pk': self.id})
 
 
+class AddressType(models.Model):
+    type = models.CharField(
+        max_length=30,)
+
+    def __str__(self):
+        return '%s' % self.type
+
+
 class Address(models.Model):
     contact = models.ForeignKey(Contact)
     
-    address_type = models.CharField(
-        max_length=10,)
+    address_type = models.ForeignKey(AddressType)
 
     address = models.CharField(
         max_length=255,)

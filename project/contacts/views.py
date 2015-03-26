@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import ListView
 from django.views.generic import CreateView
 from django.views.generic import UpdateView
@@ -21,12 +20,13 @@ class LoggedInMixin(object):
     def dispatch(self, *args, **kwargs):
         return super(LoggedInMixin, self).dispatch(*args, **kwargs)
 
+
 class ContactOwnerMixin(object):
     def get_object(self, queryset=None):
         if queryset is None:
-            queryset=self.get_queryset()
-        pk=self.kwargs.get(self.pk_url_kwargs, None)
-        queryset=queryset.filter(
+            queryset = self.get_queryset()
+        pk = self.kwargs.get(self.pk_url_kwargs, None)
+        queryset = queryset.filter(
             pk=pk,
             owner=self.request.user,
         )
