@@ -1,4 +1,4 @@
-Django==1.11.18
+django>=1.11.19
 MySQL-python
 selenium
 rebar
